@@ -12,21 +12,26 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = "4.0"
   s.osx.deployment_target = "10.6"
 
-  # gross hack to make this work with AFNetworking
-  s.compiler_flags = '-D_SYSTEMCONFIGURATION_H -D__MOBILECORESERVICES__ -D__CORESERVICES__'
+  s.subspec "Core" do |sp|
+    sp.prepare_command = <<-CMD
+      make
+    CMD
+    sp.source_files = "include/geos_c.h"
+    sp.vendored_libraries = "lib/libgeos_c.dylib", "lib/libgeos.dylib"
+    sp.public_header_files = "include/geos_c.h"
+  end
 
-  s.prepare_command = <<-CMD
-    make
-  CMD
+  s.subspec "Prebuilt" do |sp|
+    # TODO: download the prebuilt distribution package
+    # sp.prepare_command = <<-CMD
+    #   make
+    # CMD
+    sp.source_files = "include/geos_c.h"
+    sp.vendored_libraries = "lib/libgeos_c.dylib", "lib/libgeos.dylib"
+    sp.public_header_files = "include/geos_c.h"
+  end
 
-  s.preserve_paths = 'src/**/*.h', 'include/**/*.{h,inl,in}', 'capi/*.{h,in}'
-  
-  s.source_files = 'src/**/*.cpp', 'capi/*.cpp', 'geos_svn_revision.h', 'capi/geos_c.h', 'include/geos/export.h'
-  s.exclude_files = '**/*tests*'
-  
-  s.public_header_files = 'capi/geos_c.h', 'include/geos/export.h'
-
-  s.xcconfig = { 'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/geos/include ${PODS_ROOT}/geos/capi', 'CLANG_CXX_LIBRARY' => 'libstdc++'}
+  s.default_subspec = "Core"
 
 end
 
